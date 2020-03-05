@@ -1,6 +1,5 @@
-import Util
+from enum import Enum
 from Util import *
-import GameState
 from GameState import *
 
 #**********************************************#
@@ -20,12 +19,13 @@ def MoveEnumToText(move):
         return "down"
     if move == SnakeMove.LEFT:
         return "left"
+    print("bad move!!!", move)
 
 ################################################
 def IsValidMove(snakeMove, gameBoard, youSnakeId):
     snakeHeadPos = gameBoard.GetSnakeHead(youSnakeId)
     if snakeHeadPos is None:
-        return
+        return False
 
     headX = snakeHeadPos['x']
     headY = snakeHeadPos['y']
@@ -34,15 +34,19 @@ def IsValidMove(snakeMove, gameBoard, youSnakeId):
     # First let's make sure we're not going to hit a wall
     if snakeMove == SnakeMove.UP:
         if headY == 0:
+            print("Wall bad up")
             return False
     elif snakeMove == SnakeMove.RIGHT:
         if headX >= (gameBoard.width - 1):
+            print("Wall bad right")
             return False
     elif snakeMove == SnakeMove.DOWN:
         if headY >= (gameBoard.height - 1):
+            print("Wall bad down")
             return False
     elif snakeMove == SnakeMove.LEFT:
         if headX == 0:
+            print("Wall bad left")
             return False
 
     # Now let's calculate where the snake head will go
@@ -56,9 +60,13 @@ def IsValidMove(snakeMove, gameBoard, youSnakeId):
         newPosY += 1
     elif snakeMove == SnakeMove.LEFT:
         newPosX -= 1
+    else:
+        print("You're passing the wrong type for snakeMove!!!", snakeMove)
 
+    print("target cell x", newPosX, "y", newPosY)
     nextCell = gameBoard.board[newPosX][newPosY]
     nextCell.DebugPrint()
+
     # Empty cell is good
     # Food cell is good
     # Snake tails move after so they're bad
@@ -146,5 +154,4 @@ def GetMoveTowardsPoint(x, y, gameBoard, youSnakeId):
         pass
 
     return eMove
-
 

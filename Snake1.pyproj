@@ -30,6 +30,9 @@
     <Compile Include="SnakeUtil.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="TurnAnalysisBasic.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Util.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

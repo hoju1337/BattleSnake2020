@@ -5,32 +5,37 @@ import random
 import bottle
 from bottle import HTTPResponse
 
-import Util
 from Util import *
-import GameState
 from GameState import *
-import SnakeLogic1
 from SnakeLogic1 import *
 
 
 g_gameStates = {}
+g_youSnakeId = None     # Debugging helper so we can choose to only have one snake do print outs
 
 ################################################
 def AddGame(gameData):
     global g_gameStates
+    global g_youSnakeId
 
     game = gameData['game']
     gameId = game['id']
-    board = gameData['board']
-    g_gameStates[gameId] = GameState(gameId, board['width'], board['height'], board['snakes'])
+    if gameId not in g_gameStates:
+        board = gameData['board']
+        g_gameStates[gameId] = GameState(gameId, board['width'], board['height'], board['snakes'])
 
     you = gameData['you']
-    print("New Game you ", you['id'])
+    youId = you['id']
+    g_gameStates[gameId].youSnakeData[youId] = PersistantSnakeData(youId)
+
+    if g_youSnakeId is None:
+        g_youSnakeId = youId
+    print("New Game you ", youId)
 
     return gameId
 
 ################################################
-def GetSnakeId(gameData):
+def GetYouSnakeId(gameData):
     you = gameData['you']
     return you['id']
 
@@ -65,13 +70,19 @@ def start():
 #    print("START:", json.dumps(gameData))
 
     global g_gameStates
+    global g_youSnakeId
 
     gameId = AddGame(gameData)
 
     gameBoard = GameBoard()
     gameBoard.InitFromGameData(gameData)
-    snakeId = GetSnakeId(gameData)
-    PrintBoard(gameBoard, snakeId, g_gameStates[gameId].simpleSnakeIds)
+
+    youSnakeId = GetYouSnakeId(gameData)
+    if g_youSnakeId == youSnakeId:
+        PrintBoard(gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
+
+    # Remember setup if snake logic needs it
+#    ChoseMove_3_Init(gameState, gameBoard, youSnakeId)
 
     response = {"color": RandomColor(), "headType": RandomHead(), "tailType": RandomTail()}
 #    print("setup ", json.dumps(response))
@@ -93,6 +104,9 @@ def move():
     gameData = bottle.request.json
 #    print("MOVE:", json.dumps(gameData))
 
+    global g_gameStates
+    global g_youSnakeId
+
     move = None
 
     game = gameData['game']
@@ -100,14 +114,21 @@ def move():
     if gameId in g_gameStates:
         gameState = g_gameStates[gameId]
 
-        snakeId = GetSnakeId(gameData)
-        print("Move you ", snakeId)
+        youSnakeId = GetYouSnakeId(gameData)
+        print("Move you ", youSnakeId)
 
         gameBoard = GameBoard()
         gameBoard.InitFromGameData(gameData)
-        PrintBoard(gameBoard, snakeId, g_gameStates[gameId].simpleSnakeIds)
+#        if True:
+        if g_youSnakeId == youSnakeId:
+            PrintBoard(gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
 
-        eMove = ChooseMove_2(gameState, gameBoard, snakeId)
+        persistantSnakeData = gameState.youSnakeData[youSnakeId]
+
+        if g_youSnakeId == youSnakeId:
+            eMove = ChooseMove_3(gameState, gameBoard, youSnakeId)
+        else:
+            eMove = ChooseMove_2(gameState, gameBoard, youSnakeId)
         if eMove is not None:
             move = MoveEnumToText(eMove)
             print("Moving", move)
@@ -139,6 +160,8 @@ def end():
     """
     gameData = bottle.request.json
 #    print("END:", json.dumps(gameData))
+
+    global g_gameStates
 
     game = gameData['game']
     gameId = game['id']

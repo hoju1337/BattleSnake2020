@@ -6,6 +6,7 @@ class GameState:
         self.gameId = gameId
         self.width = width
         self.height = height
+        self.youSnakeData = {}  # Dicionary so we can support this instance running more than one snake
         self.simpleSnakeIds = {}
 
         # Make id version of the snake GUIDs that will persist across calls to /move
@@ -26,6 +27,7 @@ class SnakeData:
         self.id = id
         self.health = health
         self.body = body
+        self.metadata = None
 
     ############################################
     def GetHead(self):
@@ -55,6 +57,7 @@ class SnakePart:
         self.x = x
         self.y = y
         self.snakeData = snakeData
+        self.metadata = None
 
     ############################################
     def IsHead(self):
@@ -69,6 +72,7 @@ class GameCell:
     def __init__(self):
         self.state = CellState.EMPTY
         self.snakePart = None
+        self.metadata = None
 
     ############################################
     def DebugPrint(self):
@@ -95,6 +99,7 @@ class GameBoard:
         self.height = 0
         self.snakes = {}
         self.food = []
+        self.metadata = None
 
     ############################################
     def InitFromGameData(self, gameData):
@@ -139,3 +144,43 @@ class GameBoard:
         if snake is None:
             return
         return snake.GetHead()
+
+    ############################################
+    # Make a copy of the GameBoard.  Duplicate all the data except the self.metadata for each object.
+    def DuplicateGameBoard(self):
+        newGameBoard = GameBoard()
+
+        newGameBoard.width = self.width
+        newGameBoard.height = self.height
+
+        # Initalize all cells
+        newGameBoard.board = []
+        for i in range(self.width):
+            cells = []
+            for j in range(self.height):
+                cells.append(GameCell())
+            newGameBoard.board.append(cells)
+
+        # Add the food
+        newGameBoard.food = self.food   # Currently fine to share the food list object
+        for foodPos in self.food:
+            newGameBoard.board[foodPos['x']][foodPos['y']].state = CellState.FOOD
+
+        for snake in self.snakes.values():
+            newSnakeData = SnakeData(snake.id, snake.health, snake.body)
+            newGameBoard.snakes[snake.id] = newSnakeData
+            for bodyPart in snake.body:
+                x = bodyPart['x']
+                y = bodyPart['y']
+                cell = newGameBoard.board[x][y]
+                cell.state = CellState.SNAKE
+                cell.snakePart = SnakePart(x, y, newSnakeData)
+
+        return newGameBoard
+
+#**********************************************#
+# Simple data structure that lives for the lifetime of the game.
+# There will be one instance per snake being controlled
+class PersistantSnakeData:
+    def __init__(self, youId):
+        self.id = youId

@@ -1,9 +1,8 @@
-import Util
 from Util import *
-import GameState
 from GameState import *
-import SnakeUtil
 from SnakeUtil import *
+from TurnAnalysisBasic import *
+
 
 ################################################
 #####  Just pick a random valid direction  #####
@@ -26,6 +25,21 @@ def ChooseMove_1(gameState, gameBoard, youSnakeId):
 ################################################
 ##########  Always eat nearest food   ##########
 def ChooseMove_2(gameState, gameBoard, youSnakeId):
+    nearestFood = FindNearestFoodToSnake(gameBoard, youSnakeId)
+    eMove = GetMoveTowardsPoint(nearestFood[0], nearestFood[1], gameBoard, youSnakeId)
+    if eMove is None:
+        eMove = ChooseMove_1(gameState, gameBoard, youSnakeId)
+    return eMove
+
+################################################
+##########  dunno yet   ##########
+def ChooseMove_3(gameState, gameBoard, youSnakeId):
+    persistentData = gameState.youSnakeData[youSnakeId]
+
+    AnalyseMoves(persistentData, gameBoard, gameState)
+
+
+    # Doing ChooseMove_2 for now
     nearestFood = FindNearestFoodToSnake(gameBoard, youSnakeId)
     eMove = GetMoveTowardsPoint(nearestFood[0], nearestFood[1], gameBoard, youSnakeId)
     if eMove is None:

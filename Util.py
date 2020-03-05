@@ -1,7 +1,6 @@
 import random
 import math
 
-import GameState
 from GameState import *
 
 ################################################
