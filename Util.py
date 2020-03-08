@@ -1,5 +1,6 @@
 import random
 import math
+import time
 
 from GameState import *
 
@@ -99,7 +100,7 @@ def PrintSeparatorRow(width, height):
     print(strMsg + "-")
 
 ################################################
-def PrintBoardRow(curRow, gameBoard, youId, simpleSnakeIds):
+def PrintBoardRow(curRow, gameBoard, youSnakeId, simpleSnakeIds, funcMetadataPrint):
     strMsg = ""
     if (gameBoard.height > 10):
         # Add the ten's digit
@@ -112,27 +113,37 @@ def PrintBoardRow(curRow, gameBoard, youId, simpleSnakeIds):
     for i in range(gameBoard.width):
         cell = gameBoard.board[i][curRow]
         if cell.state == CellState.EMPTY:
-            strMsg += " "
-        elif cell.state == CellState.FOOD:
-            strMsg += "F"
-        else:   #cell.state == CellState.SNAKE
-            if cell.snakePart.IsHead():
-                strMsg += "H"
-            elif cell.snakePart.IsTail():
-                strMsg += "T"
+            if funcMetadataPrint is not None:
+                strMsg += funcMetadataPrint(cell, youSnakeId, simpleSnakeIds)
             else:
-                if cell.snakePart.snakeData.id == youId:
-                    strMsg += "Y"
+                strMsg += " "
+        elif cell.state == CellState.FOOD:
+            if funcMetadataPrint is not None:
+                strMsg += funcMetadataPrint(cell, youSnakeId, simpleSnakeIds)
+            else:
+                strMsg += "F"
+        else:   #cell.state == CellState.SNAKE
+            if funcMetadataPrint is not None:
+                strMsg += funcMetadataPrint(cell, youSnakeId, simpleSnakeIds)
+            else:
+                if cell.snakePart.IsHead():
+                    strMsg += "H"
+                elif cell.snakePart.IsTail():
+                    strMsg += "T"
                 else:
-                    strMsg += str(simpleSnakeIds[cell.snakePart.snakeData.id])
+                    if cell.snakePart.snakeData.id == youSnakeId:
+                        strMsg += "Y"
+                    else:
+                        strMsg += str(simpleSnakeIds[cell.snakePart.snakeData.id])
 
         strMsg += "|"
 
     print(strMsg)
 
-
 ################################################
-def PrintBoard(gameBoard, youId, simpleSnakeIds):
+# if you want to print something custom in the cell space:
+# def funcMetadataPrint(cell, youSnakeId)
+def PrintBoard(gameBoard, youSnakeId, simpleSnakeIds, funcMetadataPrint = None):
     width = gameBoard.width
     height = gameBoard.height
 
@@ -149,5 +160,18 @@ def PrintBoard(gameBoard, youId, simpleSnakeIds):
     PrintSeparatorRow(width, height)
 
     for i in range(height):
-        PrintBoardRow(i, gameBoard, youId, simpleSnakeIds)
+        PrintBoardRow(i, gameBoard, youSnakeId, simpleSnakeIds, funcMetadataPrint)
 
+#**********************************************#
+class ElapsedTime:
+    def __init__(self, message = None):
+        self.message = message
+        self.startTimeS = time.time()   # Time is in seconds
+
+################################################
+    def EndTiming(self):
+        tickElapsedS = time.time() - self.startTimeS
+        #if len(self.message) > 0:
+        #    print(self.message, tickElapsedS)
+        #else:
+        #    print("elapsed time", tickElapsedS)

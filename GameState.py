@@ -67,6 +67,14 @@ class SnakePart:
     def IsTail(self):
         return self.snakeData.IsTail(self.x, self.y)
 
+    ############################################
+    def SnakeLength(self):
+        return self.snakeData.SnakeLength()
+
+    ############################################
+    def GetSnakeId(self):
+        return self.snakeData.id
+
 #**********************************************#
 class GameCell:
     def __init__(self):
@@ -144,6 +152,20 @@ class GameBoard:
         if snake is None:
             return
         return snake.GetHead()
+
+    ############################################
+    def GetSnakeTail(self, snakeId):
+        snake = self.GetSnake(snakeId)
+        if snake is None:
+            return
+        return snake.GetTail()
+
+    ############################################
+    def GetSnakeLength(self, snakeId):
+        snake = self.GetSnake(snakeId)
+        if snake is None:
+            return
+        return snake.SnakeLength()
 
     ############################################
     # Make a copy of the GameBoard.  Duplicate all the data except the self.metadata for each object.

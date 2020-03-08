@@ -8,6 +8,7 @@ from bottle import HTTPResponse
 from Util import *
 from GameState import *
 from SnakeLogic1 import *
+from SnakeLogic3 import *
 
 
 g_gameStates = {}
@@ -30,7 +31,7 @@ def AddGame(gameData):
 
     if g_youSnakeId is None:
         g_youSnakeId = youId
-    print("New Game you ", youId)
+#    print("New Game you ", youId)
 
     return gameId
 
@@ -78,8 +79,8 @@ def start():
     gameBoard.InitFromGameData(gameData)
 
     youSnakeId = GetYouSnakeId(gameData)
-    if g_youSnakeId == youSnakeId:
-        PrintBoard(gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
+#    if g_youSnakeId == youSnakeId:
+#        PrintBoard(gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
 
     # Remember setup if snake logic needs it
 #    ChoseMove_3_Init(gameState, gameBoard, youSnakeId)
@@ -115,26 +116,27 @@ def move():
         gameState = g_gameStates[gameId]
 
         youSnakeId = GetYouSnakeId(gameData)
-        print("Move you ", youSnakeId)
+#        print("Move you ", youSnakeId)
 
         gameBoard = GameBoard()
         gameBoard.InitFromGameData(gameData)
 #        if True:
-        if g_youSnakeId == youSnakeId:
-            PrintBoard(gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
+#        if g_youSnakeId == youSnakeId:
+#            PrintBoard(gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
 
         persistantSnakeData = gameState.youSnakeData[youSnakeId]
 
-        if g_youSnakeId == youSnakeId:
-            eMove = ChooseMove_3(gameState, gameBoard, youSnakeId)
+        if True:
+#        if g_youSnakeId == youSnakeId:
+            eMove = ChooseMove_3(gameState, gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
         else:
             eMove = ChooseMove_2(gameState, gameBoard, youSnakeId)
         if eMove is not None:
             move = MoveEnumToText(eMove)
-            print("Moving", move)
-    else:
-        print("!!! Failed to find gameId in gameState.  Id =", gameId)
-        print("GameStates:", g_gameStates)
+#            print("Moving", move)
+#    else:
+#        print("!!! Failed to find gameId in gameState.  Id =", gameId)
+#        print("GameStates:", g_gameStates)
 
     # Shouldn't happen, but if it does just choose a random direction
     if move is None:

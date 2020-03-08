@@ -23,6 +23,9 @@
     <Compile Include="GameState.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="SnakeLogic3.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Snake1.py" />
     <Compile Include="SnakeLogic1.py">
       <SubType>Code</SubType>

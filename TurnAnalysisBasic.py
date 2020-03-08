@@ -1,5 +1,6 @@
 from enum import Enum
 from GameState import *
+from SnakeUtil import *
 
 #**********************************************#
 class SnakeMoved(Enum):
@@ -14,6 +15,13 @@ class SnakeMovedResult(Enum):
     NORMAL = 1  # Didn't do anything interesting
     ATE = 2
     KILLED = 3
+
+#**********************************************#
+class PreviousSnakeTurn:
+    def __init__(self, snakeMoved, snakeMovedResult, snakeId):
+        self.snakeMoved = snakeMoved
+        self.snakeMovedResult = snakeMovedResult
+        self.snakeId = snakeId
 
 ################################################
 def PrintSnakeTurn(snakeTurn, gameState, snakeId):
@@ -43,7 +51,8 @@ def GetSnakeSingleTurn(prevGameBoard, currGameBoard, snakeId):
     if snakeId not in prevGameBoard.snakes:
         return  # shouldn't happen, why do we still have a snakeId for a snake that was dead last turn?
     if snakeId not in currGameBoard.snakes:
-        return [SnakeMoved.DIED, SnakeMovedResult.NORMAL]
+        return PreviousSnakeTurn(SnakeMoved.DIED, SnakeMovedResult.NORMAL, snakeId)
+#        return [SnakeMoved.DIED, SnakeMovedResult.NORMAL]
 
     prevHeadPos = prevGameBoard.snakes[snakeId].GetHead()
     currHeadPos = currGameBoard.snakes[snakeId].GetHead()
@@ -72,18 +81,18 @@ def GetSnakeSingleTurn(prevGameBoard, currGameBoard, snakeId):
         # If you ran into another snake and you're still alive you must have killed it
         result = SnakeMovedResult.KILLED
 
-    return [move, result]
-
+    return PreviousSnakeTurn(move, result, snakeId)
 
 ################################################
 def GetAllSnakeSingleTurns(prevGameBoard, currGameBoard, gameState):
     print("~~~~ Snake Moves ~~~~")
-    snakeTurns = []
+    snakeTurns = {}
     for snakeId in prevGameBoard.snakes:
         snakeTurn = GetSnakeSingleTurn(prevGameBoard, currGameBoard, snakeId)
-        snakeTurns.append(snakeTurn)
+        snakeTurns[snakeId] = snakeTurn
         PrintSnakeTurn(snakeTurn, gameState, snakeId)
     print("")
+    return snakeTurns
 
 ################################################
 def AnalyseMoves(persistentData, currGameBoard, gameState):
@@ -92,6 +101,12 @@ def AnalyseMoves(persistentData, currGameBoard, gameState):
         persistentData.prevGameBoard = currGameBoard
         return
 
-    allSnakeMoves = GetAllSnakeSingleTurns(persistentData.prevGameBoard, currGameBoard, gameState)
-
+    allSnakeTurns = GetAllSnakeSingleTurns(persistentData.prevGameBoard, currGameBoard, gameState)
     persistentData.prevGameBoard = currGameBoard
+    return allSnakeTurns
+
+################################################
+def DidSnakeEat(snakeId, allSnakeTurns):
+    if allSnakeTurns is None or snakeId not in allSnakeTurns:
+        return False
+    return allSnakeTurns[snakeId].snakeMovedResult == SnakeMovedResult.ATE

@@ -7,6 +7,8 @@ from TurnAnalysisBasic import *
 ################################################
 #####  Just pick a random valid direction  #####
 def ChooseMove_1(gameState, gameBoard, youSnakeId):
+    timerObj = ElapsedTime("ChooseMove_1 time")
+
     directions = [SnakeMove.UP, SnakeMove.RIGHT, SnakeMove.DOWN, SnakeMove.LEFT]
     eMove = None
     movesTried = []
@@ -18,30 +20,23 @@ def ChooseMove_1(gameState, gameBoard, youSnakeId):
             else:
                 movesTried.append(eMove)
 
-    if eMove is None:
-        print("no move")
+#    if eMove is None:
+#        print("no move")
+
+    timerObj.EndTiming()
+
     return eMove
 
 ################################################
 ##########  Always eat nearest food   ##########
 def ChooseMove_2(gameState, gameBoard, youSnakeId):
+    timerObj = ElapsedTime("ChooseMove_2 time")
+
     nearestFood = FindNearestFoodToSnake(gameBoard, youSnakeId)
     eMove = GetMoveTowardsPoint(nearestFood[0], nearestFood[1], gameBoard, youSnakeId)
     if eMove is None:
         eMove = ChooseMove_1(gameState, gameBoard, youSnakeId)
-    return eMove
 
-################################################
-##########  dunno yet   ##########
-def ChooseMove_3(gameState, gameBoard, youSnakeId):
-    persistentData = gameState.youSnakeData[youSnakeId]
+    timerObj.EndTiming()
 
-    AnalyseMoves(persistentData, gameBoard, gameState)
-
-
-    # Doing ChooseMove_2 for now
-    nearestFood = FindNearestFoodToSnake(gameBoard, youSnakeId)
-    eMove = GetMoveTowardsPoint(nearestFood[0], nearestFood[1], gameBoard, youSnakeId)
-    if eMove is None:
-        eMove = ChooseMove_1(gameState, gameBoard, youSnakeId)
     return eMove
