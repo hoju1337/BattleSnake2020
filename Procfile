@@ -1,1 +1,1 @@
-web: gunicorn app.server --worker-class gevent
+web: gunicorn Snake1 --worker-class gevent
