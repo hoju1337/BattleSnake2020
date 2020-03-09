@@ -247,19 +247,19 @@ def CouldMoveGetYouEaten(eMove, gameBoard, youSnakeId):
 
     eaten = CouldPosEatYou(adjacentUp, youSnakeLength, gameBoard)
     if eaten:
-#        print("We could get eaten!! Up")
+        print("We could get eaten!! Up")
         return True
     eaten = CouldPosEatYou(adjacentRight, youSnakeLength, gameBoard)
     if eaten:
-#        print("We could get eaten!! Right")
+        print("We could get eaten!! Right")
         return True
     eaten = CouldPosEatYou(adjacentDown, youSnakeLength, gameBoard)
     if eaten:
-#        print("We could get eaten!! Down")
+        print("We could get eaten!! Down")
         return True
     eaten = CouldPosEatYou(adjacentLeft, youSnakeLength, gameBoard)
     if eaten:
-#        print("We could get eaten!! Left")
+        print("We could get eaten!! Left")
         return True
     return False
 

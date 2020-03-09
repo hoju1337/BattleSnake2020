@@ -14,6 +14,7 @@ def AdjustMoveIfTerrible(eMove, gameBoard, youSnakeId, simpleSnakeIds):
     countWantedMove =  GetReachableCellsCountForMove(eMove, gameBoard, youSnakeId, simpleSnakeIds)
     if not possiblyEaten:
         if countWantedMove > gameBoard.GetSnakeLength(youSnakeId):
+            print("fine with move", MoveEnumToText(eMove))
             return eMove
 
     # Let's pick the move with the most open space
@@ -58,27 +59,26 @@ def AdjustMoveIfTerrible(eMove, gameBoard, youSnakeId, simpleSnakeIds):
         else:
             countLeft = GetReachableCellsCountForMove(SnakeMove.LEFT, gameBoard, youSnakeId, simpleSnakeIds)
 
-    # Collect all the counts so we can sort them.  Don't include the requested direction
-    # because we already know we don't really like it
+    print("count up", countUp, "count right", countRight, "count down", countDown, "count left", countLeft)
+
+    # Collect all the counts so we can sort them.
     moves = []
     if coordsUp is not None:
-        if eMove != SnakeMove.UP:
-            moves.append([countUp, SnakeMove.UP])
+        moves.append([countUp, SnakeMove.UP])
     if coordsRight is not None:
-        if eMove != SnakeMove.UP:
-            moves.append([countRight, SnakeMove.RIGHT])
+        moves.append([countRight, SnakeMove.RIGHT])
     if coordsDown is not None:
-        if eMove != SnakeMove.UP:
-            moves.append([countDown, SnakeMove.DOWN])
+        moves.append([countDown, SnakeMove.DOWN])
     if coordsLeft is not None:
-        if eMove != SnakeMove.UP:
-            moves.append([countLeft, SnakeMove.LEFT])
+        moves.append([countLeft, SnakeMove.LEFT])
 
     if len(moves) > 0:
         # Sort from most space to least
         moves.sort(key = lambda val: val[0], reverse = True)
+        print("Move options", moves)
         for i in range(len(moves)):
             newMove = moves[i][1]
+            print("Checking of move could get you eaten")
             if not CouldMoveGetYouEaten(newMove, gameBoard, youSnakeId):
                 return newMove
 
@@ -95,7 +95,7 @@ def GetKillMove(gameBoard, youSnakeId):
         return
 
     killMove = None
-    killMoveSnakeSize = 0
+    killMoveSnakeLen = 0
     directions = [SnakeMove.UP, SnakeMove.RIGHT, SnakeMove.DOWN, SnakeMove.LEFT]
     ourSnakeLen = gameBoard.GetSnakeLength(youSnakeId)
     for coordOfMove in youSnakeMoves:
@@ -103,6 +103,7 @@ def GetKillMove(gameBoard, youSnakeId):
             coordsOfAdjacent = GetNewCoordsOfMoveFromXY(coordOfMove.x, coordOfMove.y, eMove, gameBoard)
             # Is this a valid direction and does it have a snake head (that isn't us)?
             if coordsOfAdjacent is not None:
+#                print("Kill check.  Move to x", coordOfMove.x, ",y", coordOfMove.y, ".  Test direction", MoveEnumToText(eMove), "head at? x", coordsOfAdjacent[0], ",y", coordsOfAdjacent[1])
                 cell = gameBoard.board[coordsOfAdjacent[0]][coordsOfAdjacent[1]]
                 if cell.state == CellState.SNAKE and cell.snakePart.GetSnakeId() != youSnakeId:
                     if cell.snakePart.IsHead():
@@ -114,12 +115,15 @@ def GetKillMove(gameBoard, youSnakeId):
                             otherSnakeMoves = GetValidMoves(gameBoard, cell.snakePart.GetSnakeId())
                             if len(otherSnakeMoves) == 1:
                                 # We have a snake we can kill!  But is it the biggest snake we can kill?
-                                if otherSnakeLen > killMoveSnakeSize:
-                                    killMove = eMove
-                                    killMoveSnakeSize = otherSnakeLen
+#                                print("Kill check.  Other snake has 1 move")
+                                if otherSnakeLen > killMoveSnakeLen:
+                                    killMove = coordOfMove.snakeMove
+                                    killMoveSnakeLen = otherSnakeLen
+#                                    print("Kill check.  Kill move", MoveEnumToText(killMove), "snake size", killMoveSnakeLen)
 
-#    if killMove is not None:
-#        print("We're going for the kill!!!!!")
+#            else:
+#                print("Kill check.  Move to x", coordOfMove.x, ",y", coordOfMove.y, ".  Test direction", MoveEnumToText(eMove), "invalid move")
+
     return killMove
 
 
@@ -132,19 +136,23 @@ def ChooseMove_3(gameState, gameBoard, youSnakeId, simpleSnakeIds):
 #    allSnakeTurns = AnalyseMoves(persistentData, gameBoard, gameState)
 
     eMove = GetKillMove(gameBoard, youSnakeId)
-    if eMove is not None and not CouldMoveGetYouEaten(eMove, gameBoard, youSnakeId):
-        return eMove
+    if eMove is not None:
+        print("Kill opportunity!!!!!")
+        if not CouldMoveGetYouEaten(eMove, gameBoard, youSnakeId):
+            print("We're going for kill!!!!!")
+            return eMove
 
     # Doing ChooseMove_2 for now
     nearestFood = FindNearestFoodToSnake(gameBoard, youSnakeId)
     eMove = GetMoveTowardsPoint(nearestFood[0], nearestFood[1], gameBoard, youSnakeId)
-    if eMove is None:
-        eMove = ChooseMove_1(gameState, gameBoard, youSnakeId)
 
     if eMove is not None:
         eMove = AdjustMoveIfTerrible(eMove, gameBoard, youSnakeId, simpleSnakeIds)
 #        count = GetReachableCellsCountForMove(eMove, gameBoard, youSnakeId, simpleSnakeIds)
 #        print("Reachable cell count =", count)
+
+    if eMove is None:
+        eMove = ChooseMove_1(gameState, gameBoard, youSnakeId)
 
     timerObj.EndTiming()
 

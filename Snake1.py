@@ -79,11 +79,8 @@ def start():
     gameBoard.InitFromGameData(gameData)
 
     youSnakeId = GetYouSnakeId(gameData)
-#    if g_youSnakeId == youSnakeId:
-#        PrintBoard(gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
-
-    # Remember setup if snake logic needs it
-#    ChoseMove_3_Init(gameState, gameBoard, youSnakeId)
+    if g_youSnakeId == youSnakeId:
+        PrintBoard(gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
 
     response = {"color": RandomColor(), "headType": RandomHead(), "tailType": RandomTail()}
 #    print("setup ", json.dumps(response))
@@ -116,13 +113,13 @@ def move():
         gameState = g_gameStates[gameId]
 
         youSnakeId = GetYouSnakeId(gameData)
-#        print("Move you ", youSnakeId)
+        print(youSnakeId, "turn---------------------------------------------------------")
 
         gameBoard = GameBoard()
         gameBoard.InitFromGameData(gameData)
-#        if True:
+        if True:
 #        if g_youSnakeId == youSnakeId:
-#            PrintBoard(gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
+            PrintBoard(gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
 
         persistantSnakeData = gameState.youSnakeData[youSnakeId]
 
@@ -133,15 +130,16 @@ def move():
             eMove = ChooseMove_2(gameState, gameBoard, youSnakeId)
         if eMove is not None:
             move = MoveEnumToText(eMove)
-#            print("Moving", move)
-#    else:
-#        print("!!! Failed to find gameId in gameState.  Id =", gameId)
-#        print("GameStates:", g_gameStates)
+    else:
+        print("!!! Failed to find gameId in gameState.  Id =", gameId)
+        print("GameStates:", g_gameStates)
 
     # Shouldn't happen, but if it does just choose a random direction
     if move is None:
         directions = ["up", "down", "left", "right"]
         move = random.choice(directions)
+
+    print(youSnakeId, "Moving", move, "------------------------------------------------")
 
     # Shouts are messages sent to all the other snakes in the game.
     # Shouts are not displayed on the game board.

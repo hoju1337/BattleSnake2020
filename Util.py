@@ -171,7 +171,7 @@ class ElapsedTime:
 ################################################
     def EndTiming(self):
         tickElapsedS = time.time() - self.startTimeS
-        #if len(self.message) > 0:
-        #    print(self.message, tickElapsedS)
-        #else:
-        #    print("elapsed time", tickElapsedS)
+        if len(self.message) > 0:
+            print(self.message, tickElapsedS)
+        else:
+            print("elapsed time", tickElapsedS)
