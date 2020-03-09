@@ -11,36 +11,26 @@ from SnakeLogic1 import *
 from SnakeLogic3 import *
 
 
-g_gameStates = {}
-g_youSnakeId = None     # Debugging helper so we can choose to only have one snake do print outs
-
-################################################
-def AddGame(gameData):
-    global g_gameStates
-    global g_youSnakeId
-
-    game = gameData['game']
-    gameId = game['id']
-    if gameId not in g_gameStates:
-        board = gameData['board']
-        g_gameStates[gameId] = GameState(gameId, board['width'], board['height'], board['snakes'])
-
-    you = gameData['you']
-    youId = you['id']
-    g_gameStates[gameId].youSnakeData[youId] = PersistantSnakeData(youId)
-
-    if g_youSnakeId is None:
-        g_youSnakeId = youId
-#    print("New Game you ", youId)
-
-    return gameId
-
 ################################################
 def GetYouSnakeId(gameData):
     you = gameData['you']
     return you['id']
 
+################################################
+def GetSimpleSnakeIds(gameData):
+    snakeIds = []
+    for snake in gameData['board']['snakes']:
+        snakeIds.append(snake['id'])
 
+    snakeIds.sort()
+    # Make id version of the snake GUIDs that will persist across calls to /move
+    simpleSnakeIds = {}
+    simpleSnakeId = 1
+    for snakeId in snakeIds:
+        simpleSnakeIds[snakeId] = simpleSnakeId
+        simpleSnakeId += 1
+
+    return simpleSnakeIds
 
 ################################################
 ################################################
@@ -70,20 +60,13 @@ def start():
     gameData = bottle.request.json
 #    print("START:", json.dumps(gameData))
 
-    global g_gameStates
-    global g_youSnakeId
-
-    gameId = AddGame(gameData)
-
     gameBoard = GameBoard()
     gameBoard.InitFromGameData(gameData)
 
     youSnakeId = GetYouSnakeId(gameData)
-    if g_youSnakeId == youSnakeId:
-        PrintBoard(gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
+    PrintBoard(gameBoard, youSnakeId, GetSimpleSnakeIds(gameData))
 
     response = {"color": RandomColor(), "headType": RandomHead(), "tailType": RandomTail()}
-#    print("setup ", json.dumps(response))
 
     return HTTPResponse(
         status=200,
@@ -102,37 +85,19 @@ def move():
     gameData = bottle.request.json
 #    print("MOVE:", json.dumps(gameData))
 
-    global g_gameStates
-    global g_youSnakeId
-
     move = None
+    youSnakeId = GetYouSnakeId(gameData)
+    print(youSnakeId, "turn---------------------------------------------------------")
+    simpleSnakeIds = GetSimpleSnakeIds(gameData)
 
-    game = gameData['game']
-    gameId = game['id']
-    if gameId in g_gameStates:
-        gameState = g_gameStates[gameId]
+    gameBoard = GameBoard()
+    gameBoard.InitFromGameData(gameData)
+    PrintBoard(gameBoard, youSnakeId, simpleSnakeIds)
 
-        youSnakeId = GetYouSnakeId(gameData)
-        print(youSnakeId, "turn---------------------------------------------------------")
-
-        gameBoard = GameBoard()
-        gameBoard.InitFromGameData(gameData)
-        if True:
-#        if g_youSnakeId == youSnakeId:
-            PrintBoard(gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
-
-        persistantSnakeData = gameState.youSnakeData[youSnakeId]
-
-        if True:
-#        if g_youSnakeId == youSnakeId:
-            eMove = ChooseMove_3(gameState, gameBoard, youSnakeId, g_gameStates[gameId].simpleSnakeIds)
-        else:
-            eMove = ChooseMove_2(gameState, gameBoard, youSnakeId)
-        if eMove is not None:
-            move = MoveEnumToText(eMove)
-    else:
-        print("!!! Failed to find gameId in gameState.  Id =", gameId)
-        print("GameStates:", g_gameStates)
+    eMove = ChooseMove_3(gameBoard, youSnakeId, simpleSnakeIds)
+#    eMove = ChooseMove_2(gameBoard, youSnakeId)
+    if eMove is not None:
+        move = MoveEnumToText(eMove)
 
     # Shouldn't happen, but if it does just choose a random direction
     if move is None:
@@ -160,13 +125,6 @@ def end():
     """
     gameData = bottle.request.json
 #    print("END:", json.dumps(gameData))
-
-    global g_gameStates
-
-    game = gameData['game']
-    gameId = game['id']
-    if gameId in g_gameStates:
-        del g_gameStates[gameId]
 
     return HTTPResponse(status=200)
 

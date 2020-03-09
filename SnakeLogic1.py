@@ -6,7 +6,7 @@ from TurnAnalysisBasic import *
 
 ################################################
 #####  Just pick a random valid direction  #####
-def ChooseMove_1(gameState, gameBoard, youSnakeId):
+def ChooseMove_1(gameBoard, youSnakeId):
     timerObj = ElapsedTime("ChooseMove_1 time")
 
     directions = [SnakeMove.UP, SnakeMove.RIGHT, SnakeMove.DOWN, SnakeMove.LEFT]
@@ -29,13 +29,13 @@ def ChooseMove_1(gameState, gameBoard, youSnakeId):
 
 ################################################
 ##########  Always eat nearest food   ##########
-def ChooseMove_2(gameState, gameBoard, youSnakeId):
+def ChooseMove_2(gameBoard, youSnakeId):
     timerObj = ElapsedTime("ChooseMove_2 time")
 
     nearestFood = FindNearestFoodToSnake(gameBoard, youSnakeId)
     eMove = GetMoveTowardsPoint(nearestFood[0], nearestFood[1], gameBoard, youSnakeId)
     if eMove is None:
-        eMove = ChooseMove_1(gameState, gameBoard, youSnakeId)
+        eMove = ChooseMove_1(gameBoard, youSnakeId)
 
     timerObj.EndTiming()
 

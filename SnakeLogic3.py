@@ -78,7 +78,7 @@ def AdjustMoveIfTerrible(eMove, gameBoard, youSnakeId, simpleSnakeIds):
         print("Move options", moves)
         for i in range(len(moves)):
             newMove = moves[i][1]
-            print("Checking of move could get you eaten")
+            print("Checking if move could get you eaten")
             if not CouldMoveGetYouEaten(newMove, gameBoard, youSnakeId):
                 return newMove
 
@@ -129,11 +129,8 @@ def GetKillMove(gameBoard, youSnakeId):
 
 ################################################
 ##########  dunno yet   ##########
-def ChooseMove_3(gameState, gameBoard, youSnakeId, simpleSnakeIds):
+def ChooseMove_3(gameBoard, youSnakeId, simpleSnakeIds):
     timerObj = ElapsedTime("ChooseMove_3 time")
-
-#    persistentData = gameState.youSnakeData[youSnakeId]
-#    allSnakeTurns = AnalyseMoves(persistentData, gameBoard, gameState)
 
     eMove = GetKillMove(gameBoard, youSnakeId)
     if eMove is not None:
@@ -152,7 +149,7 @@ def ChooseMove_3(gameState, gameBoard, youSnakeId, simpleSnakeIds):
 #        print("Reachable cell count =", count)
 
     if eMove is None:
-        eMove = ChooseMove_1(gameState, gameBoard, youSnakeId)
+        eMove = ChooseMove_1(gameBoard, youSnakeId)
 
     timerObj.EndTiming()
 
