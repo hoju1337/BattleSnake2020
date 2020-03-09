@@ -1,1 +1,1 @@
-web: gunicorn rb-bs2020.wsgi
+web: gunicorn app.server --worker-class gevent
